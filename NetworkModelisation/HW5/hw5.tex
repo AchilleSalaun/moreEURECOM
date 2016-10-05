@@ -1,0 +1,164 @@
+\documentclass[a4paper]{report}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{setspace}
+\usepackage{url}
+
+\title{Homework 5}
+\author{Achille \textsc{Sala\"{u}n}}
+
+\begin{document}
+\maketitle
+
+\section*{Problem 1}
+\subsection*{Pareto Distribution to South Korea}
+
+The first path I found is the following one : 
+\medbreak
+\begin{itemize}
+\item[$\star$] \url{https://en.wikipedia.org/wiki/Pareto_ditribution}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Economist}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/List_of_economists}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Ha-Joon_Chang}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/South_Korea}
+\end{itemize}
+\medbreak
+However, in order to be sure to find a shortest path between this two pages, I decided to implement a tiny web-crawler (take in arguments starting point's and ending point's last part of the URL) :
+\medbreak
+
+\noindent \texttt{import urllib, re, sys}\\
+
+\noindent \texttt{def loadListURL(url):}\\
+\hspace*{1cm}	\texttt{page = urllib.urlopen(url).read().splitlines()}\\
+\hspace*{1cm}	\texttt{listURL = list()}\\
+\hspace*{1cm}	\texttt{sublist = list()}\\
+\hspace*{1cm}	\texttt{for i in range(0,len(page)):}\\
+\hspace*{2cm}		\texttt{sublist = re.findall(r'href="/wiki/[$\wedge$"]\*"'[i])}\\
+\hspace*{2cm}		\texttt{for j in range(0,len(sublist)):}\\
+\hspace*{3cm}			\texttt{listURL.append(sublist[j])}\\
+\hspace*{1cm}	\texttt{for i in range(0,len(listURL)):}\\
+\hspace*{2cm}		\texttt{listURL[i] = re.sub(r'href="','https://en.wikipedia.org',listURL[i])}\\
+\hspace*{2cm}		\texttt{listURL[i] = re.sub(r'"','',listURL[i])}\\
+\hspace*{1cm}	\texttt{return listURL}\\
+
+\noindent \texttt{def noNone(tree):}\\
+\hspace*{1cm}	\texttt{while None in tree:}\\
+\hspace*{2cm}		\texttt{tree.remove(None)}\\
+
+\noindent \texttt{def checkDuplicate(url,reference):}\\
+\hspace*{1cm}	\texttt{if url in reference:}\\
+\hspace*{2cm}		\texttt{return False}\\
+\hspace*{1cm}	\texttt{else:}\\
+\hspace*{2cm}		\texttt{reference.append(url)}\\
+\hspace*{2cm}		\texttt{return True}\\
+
+\noindent \texttt{def visit(tree,i,url,ref):}\\
+\hspace*{1cm}	\texttt{noNone(tree)}\\
+\hspace*{1cm}	\texttt{node = tree[i]}\\
+\hspace*{1cm}	\texttt{tree.remove(tree[i])}\\
+\hspace*{1cm}	\texttt{listURL = loadListURL(node[-1])}\\
+\hspace*{1cm}	\texttt{if url not in listURL:}\\
+\hspace*{2cm}		\texttt{for i in range(0,len(listURL)):}\\
+\hspace*{3cm}			\texttt{if checkDuplicate(listURL[i],ref):}\\
+\hspace*{4cm}				\texttt{new = list(node)}\\
+\hspace*{4cm}				\texttt{new.append(listURL[i])}\\
+\hspace*{4cm}				\texttt{tree.append(new)}\\
+\hspace*{2cm}		\texttt{return []}\\
+\hspace*{1cm}	\texttt{else:}\\
+\hspace*{2cm}		\texttt{node.append(url)}\\
+\hspace*{2cm}		\texttt{return node}\\
+
+\noindent \texttt{def lookForNode(tree):}\\
+\hspace*{1cm}	\texttt{n=0}\\
+\hspace*{1cm}	\texttt{for i in range(1,len(tree)):}\\
+\hspace*{2cm}		\texttt{if len(tree[i])<len(tree[n]):}\\
+\hspace*{3cm}			\texttt{n = i}\\
+\hspace*{1cm}	\texttt{return n}\\
+
+\noindent \texttt{start = "https://en.wikipedia.org/wiki/"+sys.argv[1]}\\
+\texttt{print('start point = '+start)}\\
+\texttt{end = "https://en.wikipedia.org/wiki/"+sys.argv[2]}\\
+\texttt{print('end point = '+end)}\\
+\texttt{ref=list()}\\
+\texttt{listURL = loadListURL(start)}\\
+\texttt{listPaths = list()}\\
+\texttt{for i in range(0,len(listURL)):}\\
+\hspace*{1cm}	\texttt{node = [start]}\\
+\hspace*{1cm}	\texttt{node.append(listURL[i])}\\
+\hspace*{1cm}	\texttt{listPaths.append(node)}\\
+
+\noindent \texttt{shortestPath = []}\\
+\texttt{k = 0}\\
+\texttt{while shortestPath == []:}\\
+\hspace*{1cm}	\texttt{noNone(listPaths)}\\
+\hspace*{1cm}	\texttt{n = lookForNode(listPaths)}\\
+\hspace*{1cm}	\texttt{k+=1}\\
+\hspace*{1cm}	\texttt{\#print(k)}\\
+\hspace*{1cm}	\texttt{\#print('n= '+str(n))}\\
+\hspace*{1cm}	\texttt{\#print('length= '+str(len(listPaths[n])))}\\
+\hspace*{1cm}	\texttt{shortestPath = visit(listPaths,n,end,ref)}\\
+
+\noindent \texttt{print('I visited '+str(k)+' pages to find, between '+start+' and '+end+', the following shortest path :')}\\
+\texttt{print(shortestPath)}\\
+\texttt{print('You can link your two pages by only '+str(len(shortestPath)-1)+' clicks !')}
+\medbreak
+Thus, after having visited 407 pages, we get the following result :
+\medbreak
+\begin{itemize}
+\item[$\star$] \url{https://en.wikipedia.org/wiki/Pareto_ditribution}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Portal:Current_events}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/South_Korea}
+\end{itemize}
+\pagebreak
+
+\subsection*{Cheeseburger to Political theory}
+Manually, I managed to obtain the following path :
+\medbreak
+\begin{itemize}
+\item[$\star$] \url{https://en.wikipedia.org/wiki/Cheeseburger}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Halakha}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Law\#Legal_theory}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Political_philosophy}
+\end{itemize}
+\medbreak
+
+After having browsed 1048 pages, the shortest path suggested by my web-crawler is :
+\medbreak
+\begin{itemize}
+\item[$\star$] \url{https://en.wikipedia.org/wiki/Cheeseburger}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Cheese}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/United_States}
+\item[$\rightarrow$] \url{https://en.wikipedia.org/wiki/Political_philosophy}
+\end{itemize}
+\medbreak
+
+\section*{Problem 2}
+\subsection*{Q1}
+The degree distribution is the following one :
+\[\begin{array}{ccccc}
+P & : & \mathbf{N} & \to & \mathbf{R}^{+} \\
+&&&&\\
+ & & k=1 & \mapsto & \frac{N-1}{N}(1-p)^2 \\
+&&&&\\
+ & & k=2 & \mapsto & \frac{N-1}{N}p(1-p) \\
+&&&&\\
+ & & k=3 & \mapsto & \frac{N-1}{N}p^2 \\
+&&&&\\
+ & & k=(N-1) & \mapsto & \frac{1}{N} \\
+\end{array}\]
+
+\subsection*{Q2}
+
+A node is either the center with a probability $\frac{1}{N}$ whose the degree is $N-1$, or a leaf with a probability $\frac{N-1}{N}$ whose the degree is $1+2p$ (linked to the center, and maybe with the leaves before and after). Thus, the average degree is :
+\[<k>=\overbrace{\frac{N-1}{N}(1+2p)}^{leaves}+\overbrace{\frac{1}{N}(N-1)}^{center}=2\frac{N-1}{N}(1+p)\]
+
+\subsection*{Q3}
+The clustering coefficient is :
+\[C=\frac{3p(N-1)}{\frac{(N-1)(N-2)}{2}}=\frac{6p}{N-2}\]
+\subsection*{Q4}
+Let derive the new average degree :
+\[<k>(q)=\frac{N-1}{N}(q+2p)+\frac{q}{N}(N-1)=2\frac{N-1}{N}(p+q)\]
+Furthermore, the giant component disapears as soon as $<k>(q)<1$, so :
+\[q<\frac{N}{2(N-1)}-p\]
+\end{document}
